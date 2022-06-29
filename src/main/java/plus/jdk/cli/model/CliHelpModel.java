@@ -4,7 +4,7 @@ import lombok.Data;
 import plus.jdk.cli.annotation.PropertiesValue;
 
 @Data
-public class HelpInfoModel {
+public class CliHelpModel {
 
     /**
      * header欢迎使用的标题
@@ -15,7 +15,7 @@ public class HelpInfoModel {
     /**
      * 想要展示的banner信息
      */
-    @PropertiesValue("plus.jdk.help.header.banner")
+    @PropertiesValue(value = "plus.jdk.help.header.banner", resource = true, path = "banner/banner.txt")
     private String banner;
 
     /**

@@ -2,7 +2,7 @@ package plus.jdk.cli.common;
 
 import com.google.gson.Gson;
 import plus.jdk.cli.annotation.PropertiesValue;
-import plus.jdk.cli.model.HelpInfoModel;
+import plus.jdk.cli.model.CliHelpModel;
 import plus.jdk.cli.model.ReflectFieldModel;
 
 import java.io.IOException;
@@ -27,6 +27,9 @@ public class PropertiesUtil {
             Field field = reflectFieldModel.getField();
             PropertiesValue propertiesValue = reflectFieldModel.getAnnotation();
             String data = properties.getProperty(propertiesValue.value());
+            if(propertiesValue.resource()) {
+                data = ResourceUtil.getResourceContent(propertiesValue.path());
+            }
             String fieldName = field.getName();
             dataMap.put(fieldName, data);
         }
@@ -34,7 +37,7 @@ public class PropertiesUtil {
     }
 
     public static void main(String[] args) throws IOException, IllegalAccessException, InstantiationException {
-        HelpInfoModel helpInfoModel = initializationConfig(HelpInfoModel.class, "help.properties");
+        CliHelpModel cliHelpModel = initializationConfig(CliHelpModel.class, "help.properties");
         System.out.println("xxxxxx");
     }
 
