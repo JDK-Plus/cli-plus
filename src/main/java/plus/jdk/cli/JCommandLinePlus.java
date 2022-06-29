@@ -21,7 +21,6 @@ import java.util.List;
 @CommandLinePlus(description = "这是一个测试指令")
 public abstract class JCommandLinePlus {
 
-
     public JCommandLinePlus() {
     }
 
