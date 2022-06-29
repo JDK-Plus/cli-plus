@@ -8,27 +8,33 @@ import plus.jdk.cli.annotation.SubInstruction;
 @CommandLinePlus(description = "这是一个测试指令")
 public class TestJCommand extends JCommandLinePlus {
 
-    @CommandParameter(name = "p1", longName = "params1", needArgs = true, description = "参数1")
-    private String params1;
+    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id")
+    private Long uid;
 
-    @CommandParameter(name = "p2", longName = "params2", needArgs = true, description = "参数2")
-    private String params2;
+    @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "用户手机号")
+    private String phone;
 
-    @CommandParameter(name = "p3", longName = "params3", needArgs = true, description = "参数3")
-    private Integer params3;
+    @CommandParameter(name = "e", longName = "email", needArgs = true, description = "用户邮箱")
+    private String email;
 
+    @CommandParameter(name = "h", longName = "help", needArgs = false, description = "展示帮助信息")
+    private Boolean help;
+
+    /**
+     * 可以以这种形式来指定子指令
+     */
     @SubInstruction
     @CommandParameter(name = "sub", longName = "subInstruction", needArgs = false, description = "子指令")
     private TestSubInstruction subInstruction;
 
     @Override
-    protected boolean isShowUsage() {
-        return true;
-    }
-
-    @Override
-    public void doInCommand() {
-
+    public void doInCommand() throws Exception {
+        if(help) { // 若指定 -h 或 --help 选项，则展示帮助信息
+            showUsage();
+            return;
+        }
+        // to do something according to Input parameters
+        // which has been assigned to a member variable
     }
 
     public static void main(String[] args) throws Exception {

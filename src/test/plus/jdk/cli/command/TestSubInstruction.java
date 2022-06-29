@@ -18,11 +18,6 @@ public class TestSubInstruction extends JCommandLinePlus {
     private Integer params3;
 
     @Override
-    protected boolean isShowUsage() {
-        return true;
-    }
-
-    @Override
     protected void doInCommand() {
 
     }

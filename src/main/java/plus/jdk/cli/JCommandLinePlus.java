@@ -29,7 +29,7 @@ public abstract class JCommandLinePlus {
 
     static {
         try{
-            cliHelpModel = initializationConfig(CliHelpModel.class, "help.properties");
+            cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties");
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -42,17 +42,13 @@ public abstract class JCommandLinePlus {
 
     }
 
-    public final void run(String[] args) throws ParseException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+    public final void run(String[] args) throws Exception {
         List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
         Options options = buildOptions(parameterModels);
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(options, args, true);
         buildParameters(commandLine, parameterModels);
         if(!doFirstSubInstruction(parameterModels, commandLine, args)) {
-            if(isShowUsage()) { // 若输入不合法，则展示帮助信息
-                showUsage();
-                return;
-            }
             doInCommand();
         }
     }
@@ -79,7 +75,7 @@ public abstract class JCommandLinePlus {
     /**
      * 获取第一个子指令并获取其下标
      */
-    private boolean doFirstSubInstruction(List<ReflectFieldModel<CommandParameter>> fieldModels, CommandLine commandLine, String[] args) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException, ParseException {
+    private boolean doFirstSubInstruction(List<ReflectFieldModel<CommandParameter>> fieldModels, CommandLine commandLine, String[] args) throws Exception {
         for (ReflectFieldModel<CommandParameter> fieldModel : fieldModels) {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
@@ -111,8 +107,17 @@ public abstract class JCommandLinePlus {
             CommandParameter commandParameter = fieldModel.getAnnotation();
             Field field = fieldModel.getField();
             field.setAccessible(true);
+            boolean needArgs = fieldNeedArgs(fieldModel);
             if (commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName())) {
                 String value = commandLine.getOptionValue(commandParameter.name());
+                if(!needArgs && field.getType() ==  Boolean.class) {
+                    field.set(this, true);
+                    continue;
+                }
+                if(!needArgs && (field.getType() ==  Integer.class)) {
+                    field.set(this, 1);
+                    continue;
+                }
                 field.set(this, gson.fromJson(value, field.getType()));
             }
         }
@@ -148,13 +153,5 @@ public abstract class JCommandLinePlus {
     /**
      * 你可以根据你输入的参数来执行你的任务
      */
-    protected abstract void doInCommand();
-
-    /**
-     * 是否展示帮助信息，子类实现。
-     * 若参数输入有误，则返回true展示帮助信息即可
-     */
-    protected boolean isShowUsage() {
-        return false;
-    };
+    protected abstract void doInCommand() throws Exception;
 }
