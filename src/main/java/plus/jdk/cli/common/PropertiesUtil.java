@@ -1,6 +1,7 @@
 package plus.jdk.cli.common;
 
 import com.google.gson.Gson;
+import lombok.Setter;
 import plus.jdk.cli.annotation.PropertiesValue;
 import plus.jdk.cli.model.CliHelpModel;
 import plus.jdk.cli.model.ReflectFieldModel;
@@ -14,7 +15,8 @@ import java.util.Properties;
 
 public class PropertiesUtil {
 
-    private static final Gson gson = new Gson();
+    @Setter
+    private static Gson gson = new Gson();
 
     public static <T> T initializationConfig(Class<T> clazz, String path) throws IOException, IllegalAccessException, InstantiationException {
         Properties properties = new Properties();

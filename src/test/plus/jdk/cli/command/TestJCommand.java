@@ -21,9 +21,14 @@ public class TestJCommand extends JCommandLinePlus {
     @CommandParameter(name = "sub", longName = "subInstruction", needArgs = false, description = "子指令")
     private TestSubInstruction subInstruction;
 
+    @Override
+    protected boolean isShowUsage() {
+        return true;
+    }
 
     @Override
     public void doInCommand() {
+
     }
 
     public static void main(String[] args) throws Exception {
