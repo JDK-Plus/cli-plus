@@ -1,6 +1,8 @@
 # 说明
 一个简单的基于java版本的命令行编写工具库
 
+详细的使用说明请参见: https://jdk.plus/pages/2ba02f/
+
 ## 如何引入
 
 ```xml
@@ -83,7 +85,7 @@ plus.jdk.help.footer.contact=mail: moon@jdk.plus
 
 调用封装好的`showUsage`方法可以生成帮助信息并打印，示例如下：
 
-![](./src/main/resources/demo.png)
+![](https://github.com/JDK-Plus/cli-plus/blob/master/src/main/resources/demo.png)
 
 **指令shell封装**
 
