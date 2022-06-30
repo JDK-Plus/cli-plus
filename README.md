@@ -9,7 +9,7 @@
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -112,4 +112,59 @@ TOOLS_JAR=$(dirname "$0")/tools.jar
 
 # shellcheck disable=SC2046
 java -jar "${TOOLS_JAR}" "$@" -c $(dirname "$0")/conf/config.properties
+```
+## 配置的读取
+
+我们封装了`initializationConfig`函数来帮你读取配置,该函数可以配合`PropertiesValue`注解使用，将配置内容转为实体类的配置。
+
+**定义实体类**
+
+```java
+package plus.jdk.cli.model;
+
+import lombok.Data;
+import plus.jdk.cli.annotation.PropertiesValue;
+
+@Data
+public class CliHelpModel {
+
+    /**
+     * header欢迎使用的标题
+     */
+    @PropertiesValue("plus.jdk.help.header.welcome")
+    private String headerWelcome;
+
+    /**
+     * 想要展示的banner信息
+     */
+    @PropertiesValue(value = "plus.jdk.help.header.banner", resource = true, path = "banner/banner.txt")
+    private String banner;
+
+    /**
+     * header描述信息
+     */
+    @PropertiesValue("plus.jdk.help.header.description")
+    private String headerDesc;
+
+    /**
+     * 底部描述信息
+     */
+    @PropertiesValue("plus.jdk.help.footer.description")
+    private String footerDesc;
+
+    /**
+     * 联系信息
+     */
+    @PropertiesValue("plus.jdk.help.footer.contact")
+    private String footerContact;
+}
+```
+
+**读取配置：**
+
+```java
+import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
+//...
+CliHelpModel cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties", true);
+//...
 ```
