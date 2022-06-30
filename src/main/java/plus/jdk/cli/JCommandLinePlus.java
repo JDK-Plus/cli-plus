@@ -6,16 +6,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.springframework.beans.BeanUtils;
 import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
 import plus.jdk.cli.common.ReflectUtil;
+import plus.jdk.cli.model.ArgHelpInfo;
 import plus.jdk.cli.model.CliHelpModel;
 import plus.jdk.cli.model.ReflectFieldModel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
@@ -28,9 +31,9 @@ public abstract class JCommandLinePlus {
     protected static CliHelpModel cliHelpModel;
 
     static {
-        try{
-            cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties");
-        }catch(Exception e) {
+        try {
+            cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties", true);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -48,7 +51,7 @@ public abstract class JCommandLinePlus {
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(options, args, true);
         buildParameters(commandLine, parameterModels);
-        if(!doFirstSubInstruction(parameterModels, commandLine, args)) {
+        if (!doFirstSubInstruction(parameterModels, commandLine, args)) {
             doInCommand();
         }
     }
@@ -66,7 +69,7 @@ public abstract class JCommandLinePlus {
     private boolean fieldNeedArgs(ReflectFieldModel<CommandParameter> reflectFieldModel) throws IllegalAccessException {
         CommandParameter commandParameter = reflectFieldModel.getAnnotation();
         boolean needArgs = commandParameter.needArgs();
-        if(isSubInstruction(reflectFieldModel.getField())) {
+        if (isSubInstruction(reflectFieldModel.getField())) {
             needArgs = false;
         }
         return needArgs;
@@ -79,7 +82,7 @@ public abstract class JCommandLinePlus {
         for (ReflectFieldModel<CommandParameter> fieldModel : fieldModels) {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
-            if(isSubInstruction(field)) {
+            if (isSubInstruction(field)) {
                 if (!(commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName()))) {
                     continue;
                 }
@@ -103,6 +106,7 @@ public abstract class JCommandLinePlus {
     }
 
     private void buildParameters(CommandLine commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException {
+        HashMap<String, String> parameters = new HashMap<>();
         for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
             CommandParameter commandParameter = fieldModel.getAnnotation();
             Field field = fieldModel.getField();
@@ -110,17 +114,18 @@ public abstract class JCommandLinePlus {
             boolean needArgs = fieldNeedArgs(fieldModel);
             if (commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName())) {
                 String value = commandLine.getOptionValue(commandParameter.name());
-                if(!needArgs && field.getType() ==  Boolean.class) {
+                if (!needArgs && field.getType() == Boolean.class) {
                     field.set(this, true);
                     continue;
                 }
-                if(!needArgs && (field.getType() ==  Integer.class)) {
+                if (!needArgs && (field.getType() == Integer.class)) {
                     field.set(this, 1);
                     continue;
                 }
-                field.set(this, gson.fromJson(value, field.getType()));
+                parameters.put(field.getName(), value);
             }
         }
+        BeanUtils.copyProperties(gson.fromJson(gson.toJson(parameters), this.getClass()), this);
     }
 
     protected void showUsage() throws IllegalAccessException {
@@ -129,7 +134,9 @@ public abstract class JCommandLinePlus {
         println(cliHelpModel.getBanner());
         println("\t", cliHelpModel.getHeaderDesc());
         List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
-        for(ReflectFieldModel<CommandParameter> reflectFieldModel: parameterModels) {
+        int maxArgsInfoLen = 0;
+        List<ArgHelpInfo> argHelpInfos = new ArrayList<>();
+        for (ReflectFieldModel<CommandParameter> reflectFieldModel : parameterModels) {
             CommandParameter commandParameter = reflectFieldModel.getAnnotation();
             List<String> commandDescList = new ArrayList<>();
             commandDescList.add(String.format("-%s", commandParameter.name()));
@@ -139,8 +146,16 @@ public abstract class JCommandLinePlus {
             boolean needArgs = fieldNeedArgs(reflectFieldModel);
             commandDescList.add(needArgs ? "<arg>" : " ");
             commandDescList.add("\t");
-            commandDescList.add(commandParameter.description());
-            println("\t", "\t",  String.join("", commandDescList));
+            String argsInfo = String.join("", commandDescList);
+            maxArgsInfoLen = Math.max(maxArgsInfoLen, argsInfo.length());
+            argHelpInfos.add(new ArgHelpInfo(argsInfo, commandParameter.description()));
+        }
+        for (ArgHelpInfo argHelpInfo : argHelpInfos) {
+            StringBuilder builder = new StringBuilder(argHelpInfo.getArgsFormat());
+            while (builder.length() < maxArgsInfoLen) {
+                builder.append(" ");
+            }
+            println("\t\t", builder.toString(), "\t", argHelpInfo.getArgHelpInfo());
         }
         println("\t", cliHelpModel.getFooterDesc());
         println("\t", cliHelpModel.getFooterContact());
