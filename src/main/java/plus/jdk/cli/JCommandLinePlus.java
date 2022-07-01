@@ -5,18 +5,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.cli.*;
 import org.springframework.beans.BeanUtils;
 import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
+import plus.jdk.cli.common.CommandException;
 import plus.jdk.cli.common.ReflectUtil;
 import plus.jdk.cli.model.ArgHelpInfo;
 import plus.jdk.cli.model.CliHelpModel;
+import plus.jdk.cli.model.Options;
 import plus.jdk.cli.model.ReflectFieldModel;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,20 +48,20 @@ public abstract class JCommandLinePlus {
     public final void run(String[] args) throws Exception {
         List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
         Options options = buildOptions(parameterModels);
-        CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine = parser.parse(options, args, true);
-        buildParameters(commandLine, parameterModels);
-        if (!doFirstSubInstruction(parameterModels, commandLine, args)) {
+        options.parse(args, true);
+        buildParameters(options, parameterModels);
+        if (!doFirstSubInstruction(parameterModels, options, args)) {
             doInCommand();
         }
     }
 
-    private Options buildOptions(List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException {
+    private Options buildOptions(List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException, CommandException {
         Options options = new Options();
         for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
+            Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
             boolean needArgs = fieldNeedArgs(fieldModel);
-            options.addOption(commandParameter.name(), commandParameter.longName(), needArgs, commandParameter.description());
+            options.addOption(commandParameter.name(), commandParameter.longName(), needArgs, commandParameter.description(), field.getType());
         }
         return options;
     }
@@ -78,7 +78,7 @@ public abstract class JCommandLinePlus {
     /**
      * 获取第一个子指令并获取其下标
      */
-    private boolean doFirstSubInstruction(List<ReflectFieldModel<CommandParameter>> fieldModels, CommandLine commandLine, String[] args) throws Exception {
+    private boolean doFirstSubInstruction(List<ReflectFieldModel<CommandParameter>> fieldModels, Options commandLine, String[] args) throws Exception {
         for (ReflectFieldModel<CommandParameter> fieldModel : fieldModels) {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
@@ -105,15 +105,15 @@ public abstract class JCommandLinePlus {
         return subInstruction != null && JCommandLinePlus.class.isAssignableFrom(field.getType());
     }
 
-    private void buildParameters(CommandLine commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException {
-        HashMap<String, String> parameters = new HashMap<>();
+    private void buildParameters(Options commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException {
+        HashMap<String, Object> parameters = new HashMap<>();
         for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
             CommandParameter commandParameter = fieldModel.getAnnotation();
             Field field = fieldModel.getField();
             field.setAccessible(true);
             boolean needArgs = fieldNeedArgs(fieldModel);
             if (commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName())) {
-                String value = commandLine.getOptionValue(commandParameter.name());
+                Object value = commandLine.getOptionValue(commandParameter.name(), field.getType());
                 if (!needArgs && field.getType() == Boolean.class) {
                     field.set(this, true);
                     continue;
@@ -122,10 +122,9 @@ public abstract class JCommandLinePlus {
                     field.set(this, 1);
                     continue;
                 }
-                parameters.put(field.getName(), value);
+                field.set(this, value);
             }
         }
-        BeanUtils.copyProperties(gson.fromJson(gson.toJson(parameters), this.getClass()), this);
     }
 
     protected void showUsage() throws IllegalAccessException {
