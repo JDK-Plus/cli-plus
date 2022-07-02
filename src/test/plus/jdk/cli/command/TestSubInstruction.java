@@ -17,8 +17,15 @@ public class TestSubInstruction extends JCommandLinePlus {
     @CommandParameter(name = "p3", longName = "params3", needArgs = true, description = "sub参数3")
     private Integer params3;
 
-    @Override
-    protected void doInCommand() {
+    @CommandParameter(name = "h", longName = "help", needArgs = false, description = "展示帮助信息")
+    private Boolean help;
 
+    @Override
+    protected void doInCommand() throws IllegalAccessException {
+        if(help) {
+            showUsage();
+            return;
+        }
+        // do something
     }
 }

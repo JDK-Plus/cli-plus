@@ -1,21 +1,24 @@
-# 说明
-一个简单的基于java版本的命令行编写工具库
+# Introduction
 
-详细的使用说明请参见: https://jdk.plus/pages/2ba02f/
+This is a java tool library for develop command line instruction sets 
 
-## 如何引入
+For detailed instructions, see: https://jdk.plus/pages/2ba02f/
+
+- [中文文档](README-CN.md)
+
+## Maven Dependencies
 
 ```xml
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
-## 定义指令并指定参数
+## How to define a command line and declare parameters
 
-**如何定义一个指令：**
+### How to define a command
 
 ```java
 package plus.jdk.cli.command;
@@ -25,36 +28,61 @@ import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
 
-@CommandLinePlus(description = "这是一个测试指令")
+import java.util.List;
+import java.util.Set;
+
+@CommandLinePlus(description = "This is a test command line")
 public class TestJCommand extends JCommandLinePlus {
 
-    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id")
+    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "user id")
     private Long uid;
 
-    @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "用户手机号")
+    @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "user phone")
     private String phone;
 
-    @CommandParameter(name = "e", longName = "email", needArgs = true, description = "用户邮箱")
+    /**
+     * For easy option，you can use, -<name> or --<longName> declare parameters，for example， -e xxx@jdk.plus, or --email xxx@jdk.plus
+     */
+    @CommandParameter(name = "e", longName = "email", needArgs = true, description = "user email")
     private String email;
 
-    @CommandParameter(name = "h", longName = "help", needArgs = false, description = "展示帮助信息")
+    /**
+     * You can use multiple options to specify the list，for example : -d d1 -d d2 --data d3
+     */
+    @CommandParameter(name = "d", longName = "data", needArgs = true, description = "args list")
+    private List<String> dataList;
+
+    /**
+     * You can use multiple options to specify the set，for example : -s d1 -s d2 --set d3
+     */
+    @CommandParameter(name = "s", longName = "set", needArgs = true, description = "args set")
+    private Set<String> dataSet;
+
+    /**
+     * For options that do not require parameters，You can use Boolean type to receive，
+     * For example, specify -h or --help, the value will be assigned to true, otherwise false
+     */
+    @CommandParameter(name = "h", longName = "help", needArgs = false, description = "display help information")
     private Boolean help;
 
     /**
-     * 可以以这种形式来指定子指令
+     * You can use @SubInstruction annotations to define subcommands, 
+     * whenever the instruction specifies that the sub-instruction is required to be executed，
+     * then the logic in the sub-instruction will be executed directly，
+     * no longer execute the task in the current command
      */
     @SubInstruction
-    @CommandParameter(name = "sub", longName = "subInstruction", needArgs = false, description = "子指令")
+    @CommandParameter(name = "sub", longName = "subInstruction", needArgs = false, description = "this is a subcommands")
     private TestSubInstruction subInstruction;
 
     @Override
     public void doInCommand() throws Exception {
-        if(help) { // 若指定 -h 或 --help 选项，则展示帮助信息
+        if(help) { // Show help if the -h or --help option is specified
             showUsage();
             return;
         }
         // to do something according to Input parameters
-        // which has been assigned to this class member variable
+        // which has been assigned to a member variable
     }
 
     public static void main(String[] args) throws Exception {
@@ -64,15 +92,21 @@ public class TestJCommand extends JCommandLinePlus {
 }
 ```
 
-**执行**
+### Execute a custom set of instructions：
 
 ```bash
-java -jar xxx.jar -u 123567 -p p2data --email xxx@jdk.plus -h
+java -jar xxx.jar -u 123567 -p "p2data ss" --email xxx@jdk.plus -h -s s1 -s s2 --set s3 -d d1 -d d2 --data d3
 ```
 
-**配置文件**
+### According to the parameter passing described above, the effect of execution is as follows
 
-你需要在你的工程`resources`目录下指定`cli-plus.properties`
+![](src/main/resources/cli-plus-use.png)
+
+### About some default configuration files
+
+You need to specify `cli-plus.properties` in your project `resources` directory.
+
+> Of course, it is also possible to not specify, and the default configuration provided by us will be used.
 
 ```bash
 plus.jdk.help.header.welcome=Welcome to use cli-plus
@@ -81,13 +115,16 @@ plus.jdk.help.footer.description=usage: xxx-tool -cn xx -e "ls /root"
 plus.jdk.help.footer.contact=mail: moon@jdk.plus
 ```
 
-**帮助信息**
+### How to display help information for commands and subcommands
 
-调用封装好的`showUsage`方法可以生成帮助信息并打印，示例如下：
+Calling the encapsulated `showUsage` method can generate and print help information, for example:
 
 ![](https://github.com/JDK-Plus/cli-plus/blob/master/src/main/resources/demo.png)
 
-**指令shell封装**
+> Of course, if you are not satisfied with this style, you can override the `showUsage` method to customize 
+> the help information for your instruction set
+
+## About encapsulation of instructions use `shell`
 
 ```shell
 #!/bin/bash
@@ -97,14 +134,14 @@ plus.jdk.help.footer.contact=mail: moon@jdk.plus
 #PATH=${JAVA_HOME}/bin:$PATH
 
 if ! which java > /dev/null ; then
-    echo "jdk 未安装, 请安装1.8以上版本"
+    echo "jdk is not installed, please install the version above 1.8"
     exit
 fi
 
 JAVA_VERSION=$(java -version 2>&1 | sed '1!d' | sed -e 's/"//g' | awk '{print $3}')
 
 if [[ ! "${JAVA_VERSION}" =~ ^1.8.0.* ]]; then
-    echo "jdk版本必须大于等于1.8，请检查环境配置"
+    echo "The jdk version must be greater than or equal to 1.8, please check the environment configuration"
     exit
 fi
 
@@ -113,11 +150,12 @@ TOOLS_JAR=$(dirname "$0")/tools.jar
 # shellcheck disable=SC2046
 java -jar "${TOOLS_JAR}" "$@" -c $(dirname "$0")/conf/config.properties
 ```
-## 配置的读取
+## How to read your config
 
-我们封装了`initializationConfig`函数来帮你读取配置,该函数可以配合`PropertiesValue`注解使用，将配置内容转为实体类的配置。
+We encapsulate the `initializationConfig` function to help you read the configuration. This function can be used with 
+the `PropertiesValue` annotation to convert the configuration content into the configuration of the entity class.
 
-**定义实体类**
+### How to define entity classes
 
 ```java
 package plus.jdk.cli.model;
@@ -128,39 +166,29 @@ import plus.jdk.cli.annotation.PropertiesValue;
 @Data
 public class CliHelpModel {
 
-    /**
-     * header欢迎使用的标题
-     */
     @PropertiesValue("plus.jdk.help.header.welcome")
     private String headerWelcome;
 
     /**
-     * 想要展示的banner信息
+     * You can use the resource and path parameters to specify the banner location to output
      */
     @PropertiesValue(value = "plus.jdk.help.header.banner", resource = true, path = "banner/banner.txt")
     private String banner;
 
-    /**
-     * header描述信息
-     */
+    
     @PropertiesValue("plus.jdk.help.header.description")
     private String headerDesc;
 
-    /**
-     * 底部描述信息
-     */
     @PropertiesValue("plus.jdk.help.footer.description")
     private String footerDesc;
 
-    /**
-     * 联系信息
-     */
     @PropertiesValue("plus.jdk.help.footer.contact")
     private String footerContact;
 }
 ```
+As you can see, the content in the configuration will assign values to the member variables of the entity class according to your annotation decoration
 
-**读取配置：**
+### An example of reading a configuration file
 
 ```java
 import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;

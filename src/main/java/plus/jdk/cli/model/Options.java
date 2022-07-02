@@ -43,14 +43,14 @@ public class Options {
             return null;
         }
         List<Object> values = optValues.get(opt);
+        if(values == null || values.size() == 0) {
+            return null;
+        }
         if (List.class.isAssignableFrom(type)) {
             return values;
         }
         if (Set.class.isAssignableFrom(type)) {
             return new LinkedHashSet<>(values);
-        }
-        if(values.size() == 0) {
-            return null;
         }
         return values.get(0);
     }

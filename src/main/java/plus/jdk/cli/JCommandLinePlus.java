@@ -105,24 +105,29 @@ public abstract class JCommandLinePlus {
         return subInstruction != null && JCommandLinePlus.class.isAssignableFrom(field.getType());
     }
 
-    private void buildParameters(Options commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException {
-        HashMap<String, Object> parameters = new HashMap<>();
+    private void buildParameters(Options commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException, CommandException {
         for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
             CommandParameter commandParameter = fieldModel.getAnnotation();
             Field field = fieldModel.getField();
             field.setAccessible(true);
             boolean needArgs = fieldNeedArgs(fieldModel);
-            if (commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName())) {
-                Object value = commandLine.getOptionValue(commandParameter.name(), field.getType());
-                if (!needArgs && field.getType() == Boolean.class) {
-                    field.set(this, true);
-                    continue;
-                }
-                if (!needArgs && (field.getType() == Integer.class)) {
-                    field.set(this, 1);
-                    continue;
-                }
+            boolean hasOption = commandLine.hasOption(commandParameter.name());
+            Object value = commandLine.getOptionValue(commandParameter.name(), field.getType());
+            String optName = commandParameter.name(), optLongName = commandParameter.longName();
+            if(hasOption && needArgs && value == null) {
+                throw new CommandException(String.format("invalid arg(-%s or --%s) value", optName, optLongName));
+            }
+            if (hasOption && needArgs) {
                 field.set(this, value);
+            }
+            if (!needArgs) { // 不需要参数的选项
+                if (field.getType() == Boolean.class) {
+                    field.set(this, hasOption);
+                    continue;
+                }
+                if ((field.getType() == Integer.class)) {
+                    field.set(this, hasOption? 1 : 0);
+                }
             }
         }
     }
@@ -131,6 +136,10 @@ public abstract class JCommandLinePlus {
         println("\t", cliHelpModel.getHeaderWelcome());
         println("\t", cliHelpModel.getHeaderDesc());
         println(cliHelpModel.getBanner());
+        CommandLinePlus commandLinePlus = this.getClass().getDeclaredAnnotation(CommandLinePlus.class);
+        if(commandLinePlus != null) {
+            println("\t", commandLinePlus.description());
+        }
         println("\t", cliHelpModel.getHeaderDesc());
         List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
         int maxArgsInfoLen = 0;

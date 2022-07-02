@@ -13,7 +13,7 @@ public class CliHelpModel {
     private String headerWelcome;
 
     /**
-     * 想要展示的banner信息
+     * 想要展示的banner信息, 你可以使用 resource 和 path字段指定要输出的banner位置
      */
     @PropertiesValue(value = "plus.jdk.help.header.banner", resource = true, path = "banner/banner.txt")
     private String banner;
