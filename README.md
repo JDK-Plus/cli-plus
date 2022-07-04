@@ -16,7 +16,7 @@ For detailed instructions, see: https://jdk.plus/pages/2ba02f/
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -38,7 +38,11 @@ import java.util.Set;
 @CommandLinePlus(description = "This is a test command line")
 public class TestJCommand extends JCommandLinePlus {
 
-    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "user id")
+    /**
+     * You can use the required option to specify that this parameter must be entered.
+     * Call the implemented validate() function to validate the parameters
+     */
+    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id", required = true)
     private Long uid;
 
     @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "user phone")
@@ -85,6 +89,9 @@ public class TestJCommand extends JCommandLinePlus {
             showUsage();
             return;
         }
+        
+        validate();
+
         // to do something according to Input parameters
         // which has been assigned to a member variable
     }

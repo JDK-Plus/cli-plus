@@ -26,4 +26,9 @@ public @interface CommandParameter {
      * 参数描述
      */
     String description();
+
+    /**
+     * 是否必须输入
+     */
+    boolean required() default false;
 }

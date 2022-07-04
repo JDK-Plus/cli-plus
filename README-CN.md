@@ -15,7 +15,7 @@
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -37,7 +37,10 @@ import java.util.Set;
 @CommandLinePlus(description = "这是一个测试指令")
 public class TestJCommand extends JCommandLinePlus {
 
-    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id")
+    /**
+     * 你可以使用required参数指定该项必须输入， 调用已经实现的validate() 函数去对参数做出校验
+     */
+    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id", required = true)
     private Long uid;
 
     @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "用户手机号")
@@ -80,6 +83,9 @@ public class TestJCommand extends JCommandLinePlus {
             showUsage();
             return;
         }
+
+        validate();
+
         // to do something according to Input parameters
         // which has been assigned to a member variable
     }

@@ -41,17 +41,21 @@ public abstract class JCommandLinePlus {
     @Setter
     private Gson gson = new Gson();
 
+    private Options options;
+
+    private List<ReflectFieldModel<CommandParameter>> parameterModels;
+
     public JCommandLinePlus() {
 
     }
 
     public final void run(String[] args) throws Exception {
         try{
-            List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
-            Options options = buildOptions(parameterModels);
+            parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
+            options = buildOptions();
             options.parse(args, true);
-            buildParameters(options, parameterModels);
-            if (!doFirstSubInstruction(parameterModels, options, args)) {
+            buildParameters();
+            if (!doFirstSubInstruction(args)) {
                 doInCommand();
             }
         }catch (CommandException e) {
@@ -59,9 +63,9 @@ public abstract class JCommandLinePlus {
         }
     }
 
-    private Options buildOptions(List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException, CommandException {
+    private Options buildOptions() throws IllegalAccessException, CommandException {
         Options options = new Options();
-        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
+        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModels) {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
             boolean needArgs = fieldNeedArgs(fieldModel);
@@ -82,12 +86,12 @@ public abstract class JCommandLinePlus {
     /**
      * 获取第一个子指令并获取其下标
      */
-    private boolean doFirstSubInstruction(List<ReflectFieldModel<CommandParameter>> fieldModels, Options commandLine, String[] args) throws Exception {
-        for (ReflectFieldModel<CommandParameter> fieldModel : fieldModels) {
+    private boolean doFirstSubInstruction(String[] args) throws Exception {
+        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModels) {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
             if (isSubInstruction(field)) {
-                if (!(commandLine.hasOption(commandParameter.name()) || commandLine.hasOption(commandParameter.longName()))) {
+                if (!(options.hasOption(commandParameter.name()) || options.hasOption(commandParameter.longName()))) {
                     continue;
                 }
                 field.setAccessible(true);
@@ -99,6 +103,22 @@ public abstract class JCommandLinePlus {
         return false;
     }
 
+    /**
+     * 交由子类来完成调用，校验参数是否合法，支持重写
+     */
+    protected void validate() throws IllegalAccessException, CommandException {
+        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModels) {
+            CommandParameter commandParameter = fieldModel.getAnnotation();
+            Field field = fieldModel.getField();
+            field.setAccessible(true);
+            boolean needArgs = fieldNeedArgs(fieldModel);
+            Object value = options.getOptionValue(commandParameter.name(), field.getType());
+            String optName = commandParameter.name(), optLongName = commandParameter.longName();
+            if(needArgs && commandParameter.required() && value == null) {
+                throw new CommandException(String.format("arg(-%s or --%s) must be input", optName, optLongName));
+            }
+        }
+    }
 
     /**
      * 判断某个字段是否为子指令
@@ -109,14 +129,14 @@ public abstract class JCommandLinePlus {
         return subInstruction != null && JCommandLinePlus.class.isAssignableFrom(field.getType());
     }
 
-    private void buildParameters(Options commandLine, List<ReflectFieldModel<CommandParameter>> parameterModelList) throws IllegalAccessException, CommandException {
-        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModelList) {
+    private void buildParameters() throws IllegalAccessException, CommandException {
+        for (ReflectFieldModel<CommandParameter> fieldModel : parameterModels) {
             CommandParameter commandParameter = fieldModel.getAnnotation();
             Field field = fieldModel.getField();
             field.setAccessible(true);
             boolean needArgs = fieldNeedArgs(fieldModel);
-            boolean hasOption = commandLine.hasOption(commandParameter.name());
-            Object value = commandLine.getOptionValue(commandParameter.name(), field.getType());
+            boolean hasOption = options.hasOption(commandParameter.name());
+            Object value = options.getOptionValue(commandParameter.name(), field.getType());
             String optName = commandParameter.name(), optLongName = commandParameter.longName();
             if(hasOption && needArgs && value == null) {
                 throw new CommandException(String.format("invalid arg(-%s or --%s) value", optName, optLongName));

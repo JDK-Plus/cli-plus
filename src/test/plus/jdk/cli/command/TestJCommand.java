@@ -11,7 +11,10 @@ import java.util.Set;
 @CommandLinePlus(description = "这是一个测试指令")
 public class TestJCommand extends JCommandLinePlus {
 
-    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id")
+    /**
+     * 你可以使用required参数指定该参数必须输入
+     */
+    @CommandParameter(name = "u", longName = "uid", needArgs = true, description = "用户id", required = true)
     private Long uid;
 
     @CommandParameter(name = "p", longName = "phone", needArgs = true, description = "用户手机号")
@@ -54,6 +57,10 @@ public class TestJCommand extends JCommandLinePlus {
             showUsage();
             return;
         }
+
+        // 校验参数合法性
+        validate();
+
         // to do something according to Input parameters
         // which has been assigned to a member variable
     }
