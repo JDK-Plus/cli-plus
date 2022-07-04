@@ -46,12 +46,16 @@ public abstract class JCommandLinePlus {
     }
 
     public final void run(String[] args) throws Exception {
-        List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
-        Options options = buildOptions(parameterModels);
-        options.parse(args, true);
-        buildParameters(options, parameterModels);
-        if (!doFirstSubInstruction(parameterModels, options, args)) {
-            doInCommand();
+        try{
+            List<ReflectFieldModel<CommandParameter>> parameterModels = ReflectUtil.getFieldsModelByAnnotation(this, CommandParameter.class);
+            Options options = buildOptions(parameterModels);
+            options.parse(args, true);
+            buildParameters(options, parameterModels);
+            if (!doFirstSubInstruction(parameterModels, options, args)) {
+                doInCommand();
+            }
+        }catch (CommandException e) {
+            println("\t", e.getMessage());
         }
     }
 

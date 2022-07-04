@@ -1,5 +1,5 @@
 # 简介
-一款编写命令行指令集的java工具库
+这是一款使用java编写命令行指令集的框架。
 
 详细的使用说明请参见: https://jdk.plus/pages/2ba02f/
 
@@ -11,7 +11,7 @@
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

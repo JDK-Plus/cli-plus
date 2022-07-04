@@ -1,6 +1,6 @@
 # Introduction
 
-This is a java tool library for develop command line instruction sets 
+This is a framework for writing command-line instruction sets using java
 
 For detailed instructions, see: https://jdk.plus/pages/2ba02f/
 
@@ -12,7 +12,7 @@ For detailed instructions, see: https://jdk.plus/pages/2ba02f/
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
