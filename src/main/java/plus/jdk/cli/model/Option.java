@@ -3,6 +3,7 @@ package plus.jdk.cli.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,5 +34,5 @@ public class Option {
     /**
      * 参数类型
      */
-    private Class<?> type;
+    private Field field;
 }

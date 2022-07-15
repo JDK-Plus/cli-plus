@@ -4,7 +4,10 @@ import plus.jdk.cli.JCommandLinePlus;
 import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
+import plus.jdk.cli.model.Options;
+import plus.jdk.cli.type.adapter.LongTypeAdapter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,13 +33,13 @@ public class TestJCommand extends JCommandLinePlus {
      * 你可以使用多个选项来指定列表,例如 : -d d1 -d d2 --data d3
      */
     @CommandParameter(name = "d", longName = "data", needArgs = true, description = "参数列表")
-    private List<String> dataList;
+    private List<Integer> dataList;
 
     /**
      * 你可以使用多个选项来指定列表,例如 : -d d1 -d d2 --data d3
      */
     @CommandParameter(name = "s", longName = "set", needArgs = true, description = "参数集合")
-    private Set<String> dataSet;
+    private HashSet<String> dataSet;
 
     /**
      * 针对不需要参数的选项，你可以使用Boolean类型来接收，例如指定 -h 或 --help, 该值会被赋值为true,否则为false
@@ -67,6 +70,7 @@ public class TestJCommand extends JCommandLinePlus {
 
     public static void main(String[] args) throws Exception {
         TestJCommand testCommand = new TestJCommand();
+        Options.registerTypeAdapter(Long.class, new LongTypeAdapter());
         testCommand.run(args);
     }
 }

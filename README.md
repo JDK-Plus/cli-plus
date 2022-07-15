@@ -16,7 +16,7 @@ For detailed instructions, see: https://jdk.plus/pages/2ba02f/
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
@@ -207,3 +207,55 @@ import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
 CliHelpModel cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties", true);
 //...
 ```
+
+## Add support for special types
+
+If your input parameters need to specify some custom types (currently only `Boolean`, `Long`, `String`, `Integer` are supported).
+
+### Customize your own type adapter
+
+You can customize the related serialization functions by implementing the `ITypeAdapter` interface. 
+
+An example is as follows, the following is an example of the serialization implementation of the `Long` type:
+
+```java
+package plus.jdk.cli.type.adapter;
+
+import com.google.gson.TypeAdapter;
+
+public class LongTypeAdapter implements ITypeAdapter<Long> {
+    @Override
+    public Long deserialize(String dataStr) {
+        if(dataStr == null) {
+            return null;
+        }
+        return Long.parseLong(dataStr);
+    }
+
+    @Override
+    public String serialize(Long data) {
+        if(data == null) {
+            return null;
+        }
+        return String.valueOf(data);
+    }
+}
+```
+
+### Register the implemented adapter
+
+```java
+@CommandLinePlus(description = "this is a test command")
+public class TestJCommand extends JCommandLinePlus {
+    
+    // ...
+    
+    public static void main(String[] args) throws Exception {
+        TestJCommand testCommand = new TestJCommand();
+        // Register your own implemented adapter component before completing the call
+        Options.registerTypeAdapter(Long.class, new LongTypeAdapter()); 
+        testCommand.run(args);
+    }
+}
+```
+

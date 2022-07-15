@@ -15,7 +15,7 @@
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
@@ -212,3 +212,53 @@ import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
 CliHelpModel cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties", true);
 //...
 ```
+
+## 添加对特殊类型的支持
+
+如果你的输入参数需要指定一些自定义类型(目前仅支持 `Boolean`、`Long`、`String`、`Integer`四种)。
+
+### 自定义自己的类型适配器
+
+你可以通过实现`ITypeAdapter`接口来自定义相关序列化的功能。示例如下,下面是一个关于`Long`类型序列化实现的示例：
+
+```java
+package plus.jdk.cli.type.adapter;
+
+import com.google.gson.TypeAdapter;
+
+public class LongTypeAdapter implements ITypeAdapter<Long> {
+    @Override
+    public Long deserialize(String dataStr) {
+        if(dataStr == null) {
+            return null;
+        }
+        return Long.parseLong(dataStr);
+    }
+
+    @Override
+    public String serialize(Long data) {
+        if(data == null) {
+            return null;
+        }
+        return String.valueOf(data);
+    }
+}
+```
+
+### 注册实现的适配器
+
+```java
+@CommandLinePlus(description = "这是一个测试指令")
+public class TestJCommand extends JCommandLinePlus {
+    
+    // ...
+    
+    public static void main(String[] args) throws Exception {
+        TestJCommand testCommand = new TestJCommand();
+        // 在完成调用前注册自己实现的适配器组件
+        Options.registerTypeAdapter(Long.class, new LongTypeAdapter()); 
+        testCommand.run(args);
+    }
+}
+```
+

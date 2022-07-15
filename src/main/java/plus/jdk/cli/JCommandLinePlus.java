@@ -69,7 +69,7 @@ public abstract class JCommandLinePlus {
             Field field = fieldModel.getField();
             CommandParameter commandParameter = fieldModel.getAnnotation();
             boolean needArgs = fieldNeedArgs(fieldModel);
-            options.addOption(commandParameter.name(), commandParameter.longName(), needArgs, commandParameter.description(), field.getType());
+            options.addOption(commandParameter.name(), commandParameter.longName(), needArgs, commandParameter.description(), field);
         }
         return options;
     }

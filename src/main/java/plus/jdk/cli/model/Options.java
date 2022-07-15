@@ -1,11 +1,23 @@
 package plus.jdk.cli.model;
 
 import plus.jdk.cli.common.CommandException;
+import plus.jdk.cli.type.TypeStringConvertFactory;
+import plus.jdk.cli.type.adapter.ITypeAdapter;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.*;
 
 
 public class Options {
+
+    private final static TypeStringConvertFactory typeConvertFactory = new TypeStringConvertFactory();
+
+    public static <Adapter extends ITypeAdapter<?>>
+    void registerTypeAdapter(Type clazz, Adapter adapter) {
+        typeConvertFactory.registerTypeAdapter(clazz, adapter);
+    }
 
     /**
      * 按照opt作为key存储option列表
@@ -55,8 +67,8 @@ public class Options {
         return values.get(0);
     }
 
-    public void addOption(String opt, String longOpt, boolean hasArg, String description, Class<?> type) throws CommandException {
-        Option option = new Option(opt, longOpt, hasArg, description, type);
+    public void addOption(String opt, String longOpt, boolean hasArg, String description, Field field) throws CommandException {
+        Option option = new Option(opt, longOpt, hasArg, description, field);
         if (longOptOptionsMap.get(longOpt) != null || optOptionsMap.get(opt) != null) {
             throw new CommandException(String.format("-%s or --%s has exist!", opt, longOpt));
         }
@@ -64,7 +76,7 @@ public class Options {
         longOptOptionsMap.put(longOpt, option);
     }
 
-    public void parse(String[] args, boolean stopAtNonOption) throws CommandException {
+    public void parse(String[] args, boolean stopAtNonOption) throws CommandException, ClassNotFoundException {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             Option option = getOption(arg);
@@ -84,7 +96,11 @@ public class Options {
             if (value.startsWith("-")) {
                 throw new CommandException(String.format("-%s or --%s must specify parameters", option.getOpt(), option.getLongOpt()));
             }
-            optValues.get(option.getOpt()).add(parseStringByType(value, option.getType()));
+            Type type = option.getField().getType();
+            if(Set.class.isAssignableFrom(option.getField().getType()) || List.class.isAssignableFrom(option.getField().getType())) {
+                type = ((ParameterizedTypeImpl) option.getField().getGenericType()).getActualTypeArguments()[0];
+            }
+            optValues.get(option.getOpt()).add(parseStringByType(value, type));
         }
     }
 
@@ -99,19 +115,11 @@ public class Options {
         return option;
     }
 
-    private <T> Object parseStringByType(String value, Class<T> clazz) {
-        if (String.class.equals(clazz)) {
-            return String.valueOf(value);
+    private <T> Object parseStringByType(String value, Type type) throws ClassNotFoundException {
+        Object data = typeConvertFactory.deserialize(value, Class.forName(type.getTypeName()));
+        if(data == null) {
+            data = value;
         }
-        if (Integer.class.equals(clazz)) {
-            return Integer.parseInt(value);
-        }
-        if (Boolean.class.equals(clazz)) {
-            return Boolean.parseBoolean(value);
-        }
-        if (Long.class.equals(clazz)) {
-            return Long.parseLong(value);
-        }
-        return value;
+        return data;
     }
 }
