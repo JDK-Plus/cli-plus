@@ -1,6 +1,15 @@
-<img src="https://jdk.plus/img/cli-plus-logo.gif" alt="drawing" style="width:100%;"/>
+<p align="center">
+    <img align="center" src="https://jdk.plus/img/cli-plus-logo.gif" alt="drawing" style="width:100%;"/>
+</p>
+<h3 align="center">Cli-Plus - Writing Command Line Instructions in Java</h3>
+<p align="center">
+    <a href="https://github.com/JDK-Plus/cli-plus/blob/master/LICENSE"><img src="https://img.shields.io/github/license/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/releases"><img src="https://img.shields.io/github/release/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/stargazers"><img src="https://img.shields.io/github/stars/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/network/members"><img src="https://img.shields.io/github/forks/JDK-Plus/cli-plus.svg" /></a>
+</p>
+<p align="center">Cli-Plus is an open source framework for writing command-line commands in Java. It is simple, efficient, and easy to use, and can improve team work efficiency.</p>
 
----
 
 # Introduction
 

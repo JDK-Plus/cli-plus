@@ -1,4 +1,14 @@
-<img src="https://jdk.plus/img/cli-plus-logo.gif" alt="drawing" style="width:100%;"/>
+<p align="center">
+    <img align="center" src="https://jdk.plus/img/cli-plus-logo.gif" alt="drawing" style="width:100%;"/>
+</p>
+<h3 align="center">Cli-Plus - 使用Java编写命令行指令</h3>
+<p align="center">
+    <a href="https://github.com/JDK-Plus/cli-plus/blob/master/LICENSE"><img src="https://img.shields.io/github/license/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/releases"><img src="https://img.shields.io/github/release/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/stargazers"><img src="https://img.shields.io/github/stars/JDK-Plus/cli-plus.svg" /></a>
+    <a href="https://github.com/JDK-Plus/cli-plus/network/members"><img src="https://img.shields.io/github/forks/JDK-Plus/cli-plus.svg" /></a>
+</p>
+<p align="center">Cli-Plus是一款开源的使用Java编写命令行指令的框架，它具有简单、高效、易用等特点，可以提高团队的工作效率。</p>
 
 ---
 
