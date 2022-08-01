@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.StringUtils;
 import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
@@ -187,10 +188,17 @@ public abstract class JCommandLinePlus {
             while (builder.length() < maxArgsInfoLen) {
                 builder.append(" ");
             }
-            println("\t\t", builder.toString(), "  ", argHelpInfo.getArgHelpInfo());
+            println("\t   ", builder.toString(), "  ", argHelpInfo.getArgHelpInfo());
         }
-        println("\t", cliHelpModel.getFooterDesc());
-        println("\t", cliHelpModel.getFooterContact());
+        if(commandLinePlus != null && StringUtils.hasText(commandLinePlus.usage())) {
+            println("\t", commandLinePlus.usage());
+        }
+        if(StringUtils.hasText(cliHelpModel.getFooterDesc())) {
+            println("\t", cliHelpModel.getFooterDesc());
+        }
+        if(StringUtils.hasText(cliHelpModel.getFooterContact())) {
+            println("\t", cliHelpModel.getFooterContact());
+        }
     }
 
     protected void println(String... contents) {
