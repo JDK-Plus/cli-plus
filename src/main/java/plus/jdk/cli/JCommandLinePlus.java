@@ -177,7 +177,6 @@ public abstract class JCommandLinePlus {
             commandDescList.add(" ");
             boolean needArgs = fieldNeedArgs(reflectFieldModel);
             commandDescList.add(needArgs ? "<arg>" : " ");
-            commandDescList.add("\t");
             String argsInfo = String.join("", commandDescList);
             maxArgsInfoLen = Math.max(maxArgsInfoLen, argsInfo.length());
             argHelpInfos.add(new ArgHelpInfo(argsInfo, commandParameter.description()));
@@ -187,7 +186,7 @@ public abstract class JCommandLinePlus {
             while (builder.length() < maxArgsInfoLen) {
                 builder.append(" ");
             }
-            println("\t\t", builder.toString(), "\t", argHelpInfo.getArgHelpInfo());
+            println("\t\t", builder.toString(), "  ", argHelpInfo.getArgHelpInfo());
         }
         println("\t", cliHelpModel.getFooterDesc());
         println("\t", cliHelpModel.getFooterContact());
