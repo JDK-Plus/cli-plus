@@ -137,9 +137,10 @@ public abstract class JCommandLinePlus {
             boolean needArgs = fieldNeedArgs(fieldModel);
             boolean hasOption = options.hasOption(commandParameter.name());
             Object value = options.getOptionValue(commandParameter.name(), field.getType());
-            String optName = commandParameter.name(), optLongName = commandParameter.longName();
+//            String optName = commandParameter.name(), optLongName = commandParameter.longName();
             if(hasOption && needArgs && value == null) {
-                throw new CommandException(String.format("invalid arg(-%s or --%s) value", optName, optLongName));
+                continue;
+//                throw new CommandException(String.format("invalid arg(-%s or --%s) value", optName, optLongName));
             }
             if (hasOption && needArgs) {
                 field.set(this, value);

@@ -93,9 +93,9 @@ public class Options {
             if (!option.getHasArg()) { // 不需要参数，继续下一轮判断
                 continue;
             }
-            if (value.startsWith("-")) {
-                throw new CommandException(String.format("-%s or --%s must specify parameters", option.getOpt(), option.getLongOpt()));
-            }
+//            if (value.startsWith("-")) {
+//                throw new CommandException(String.format("-%s or --%s must specify parameters", option.getOpt(), option.getLongOpt()));
+//            }
             Type type = option.getField().getType();
             if(Set.class.isAssignableFrom(option.getField().getType()) || List.class.isAssignableFrom(option.getField().getType())) {
                 type = ((ParameterizedTypeImpl) option.getField().getGenericType()).getActualTypeArguments()[0];
