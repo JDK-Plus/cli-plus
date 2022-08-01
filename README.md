@@ -25,7 +25,7 @@ For detailed instructions, see: https://jdk.plus/pages/2ba02f/
 <dependency>
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 </dependency>
 ```
 
