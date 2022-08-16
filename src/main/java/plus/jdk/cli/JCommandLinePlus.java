@@ -2,16 +2,13 @@ package plus.jdk.cli;
 
 import com.google.gson.Gson;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.StringUtils;
 import plus.jdk.cli.annotation.CommandLinePlus;
 import plus.jdk.cli.annotation.CommandParameter;
 import plus.jdk.cli.annotation.SubInstruction;
 import plus.jdk.cli.common.CommandException;
 import plus.jdk.cli.common.ReflectUtil;
+import plus.jdk.cli.common.StringUtils;
 import plus.jdk.cli.model.ArgHelpInfo;
 import plus.jdk.cli.model.CliHelpModel;
 import plus.jdk.cli.model.Options;
@@ -19,7 +16,6 @@ import plus.jdk.cli.model.ReflectFieldModel;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
@@ -29,11 +25,11 @@ import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
 @CommandLinePlus(description = "这是一个测试指令")
 public abstract class JCommandLinePlus {
 
-    protected static CliHelpModel cliHelpModel;
+    protected static CliHelpModel cliHelpModel = new CliHelpModel();
 
     static {
         try {
-            cliHelpModel = initializationConfig(CliHelpModel.class, "cli-plus.properties", true);
+            cliHelpModel = initializationConfig(cliHelpModel, "cli-plus.properties", true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -190,13 +186,13 @@ public abstract class JCommandLinePlus {
             }
             println("\t   ", builder.toString(), "  ", argHelpInfo.getArgHelpInfo());
         }
-        if(commandLinePlus != null && StringUtils.hasText(commandLinePlus.usage())) {
+        if(commandLinePlus != null && StringUtils.isEmpty(commandLinePlus.usage())) {
             println("\t", commandLinePlus.usage());
         }
-        if(StringUtils.hasText(cliHelpModel.getFooterDesc())) {
+        if(StringUtils.isEmpty(cliHelpModel.getFooterDesc())) {
             println("\t", cliHelpModel.getFooterDesc());
         }
-        if(StringUtils.hasText(cliHelpModel.getFooterContact())) {
+        if(StringUtils.isEmpty(cliHelpModel.getFooterContact())) {
             println("\t", cliHelpModel.getFooterContact());
         }
     }

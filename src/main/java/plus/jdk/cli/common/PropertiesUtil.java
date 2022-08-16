@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -21,22 +22,20 @@ public class PropertiesUtil {
 
     /**
      * 读取.properties文件
-     * @param clazz 配置类示例
      * @param path 配置路径
      * @param resource 是否在resource目录下，否则从当前系统目录读取
      */
-    public static <T> T initializationConfig(Class<T> clazz, String path, Boolean resource) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T> T initializationConfig(T obj, String path, Boolean resource) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         Properties properties = new Properties();
         InputStream inputStream;
         if(resource) {
-            inputStream = clazz.getClassLoader().getResourceAsStream(path);
+            inputStream = obj.getClass().getClassLoader().getResourceAsStream(path);
         }else {
             inputStream = new FileInputStream(path);
         }
         properties.load(inputStream);
         List<ReflectFieldModel<PropertiesValue>> reflectFieldModels =
-                ReflectUtil.getFieldsModelByAnnotation(clazz.newInstance(), PropertiesValue.class);
-        HashMap<String, String> dataMap = new HashMap<>();
+                ReflectUtil.getFieldsModelByAnnotation(obj, PropertiesValue.class);
         for (ReflectFieldModel<PropertiesValue> reflectFieldModel : reflectFieldModels) {
             Field field = reflectFieldModel.getField();
             PropertiesValue propertiesValue = reflectFieldModel.getAnnotation();
@@ -45,8 +44,8 @@ public class PropertiesUtil {
                 data = ResourceUtil.getResourceContent(propertiesValue.path());
             }
             String fieldName = field.getName();
-            dataMap.put(fieldName, data);
+            field.set(obj, data);
         }
-        return gson.fromJson(gson.toJson(dataMap), clazz);
+        return obj;
     }
 }
