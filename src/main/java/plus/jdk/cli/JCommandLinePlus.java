@@ -16,6 +16,7 @@ import plus.jdk.cli.model.ReflectFieldModel;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static plus.jdk.cli.common.PropertiesUtil.initializationConfig;
@@ -93,11 +94,24 @@ public abstract class JCommandLinePlus {
                 }
                 field.setAccessible(true);
                 JCommandLinePlus jCommandLinePlus = (JCommandLinePlus) (field.getType().getConstructor().newInstance());
-                jCommandLinePlus.run(args);
+                String[] subInstructionArgs = getSubInstructionArgs(args, commandParameter.name(), commandParameter.longName());
+                jCommandLinePlus.run(subInstructionArgs);
                 return true;
             }
         }
         return false;
+    }
+
+    private String[] getSubInstructionArgs(String[] args, String option, String longOption) {
+        List<String> argsList = Arrays.asList(args);
+        int index = argsList.indexOf("-" + option);
+        if(index < 0) {
+            index = argsList.indexOf("--" + longOption);
+        }
+        if(index >= argsList.size()) {
+            return new String[]{};
+        }
+        return argsList.subList(index + 1, argsList.size()).toArray(new String[]{});
     }
 
     /**

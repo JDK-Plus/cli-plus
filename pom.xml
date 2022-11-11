@@ -6,7 +6,7 @@
 
     <groupId>plus.jdk</groupId>
     <artifactId>cli-plus</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>cli-plus</name>
     <description>一款编写命令行指令集的java工具库</description>
     <url>https://github.com/JDK-Plus/cli-plus</url>
