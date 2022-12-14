@@ -203,10 +203,10 @@ public abstract class JCommandLinePlus {
         if(commandLinePlus != null && StringUtils.isEmpty(commandLinePlus.usage())) {
             println("\t", commandLinePlus.usage());
         }
-        if(StringUtils.isEmpty(cliHelpModel.getFooterDesc())) {
+        if(!StringUtils.isEmpty(cliHelpModel.getFooterDesc())) {
             println("\t", cliHelpModel.getFooterDesc());
         }
-        if(StringUtils.isEmpty(cliHelpModel.getFooterContact())) {
+        if(!StringUtils.isEmpty(cliHelpModel.getFooterContact())) {
             println("\t", cliHelpModel.getFooterContact());
         }
     }
