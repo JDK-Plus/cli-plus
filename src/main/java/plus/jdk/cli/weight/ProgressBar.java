@@ -62,7 +62,7 @@ public class ProgressBar {
         int total = 512;
         ProgressBar progressBar = new ProgressBar(total, 40, "Processing");
         for (int i = 0; i <= total; i++) {
-            progressBar.update(i, "处理中", String.format("%s/%s", i, total));
+            progressBar.update(i, "Processing", String.format("%s/%s", i, total));
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {

@@ -122,6 +122,11 @@
             <version>2.3.7.RELEASE</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.12.1</version>
+        </dependency>
     </dependencies>
 
     <build>
