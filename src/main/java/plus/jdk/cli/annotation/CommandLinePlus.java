@@ -7,7 +7,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandLinePlus {
 
-
     /**
      * 指令说明
      */
