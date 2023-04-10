@@ -57,17 +57,4 @@ public class ProgressBar {
     public void update(int progress) {
         update(progress, lMessage, rMessage);
     }
-
-    public static void main(String[] args) {
-        int total = 512;
-        ProgressBar progressBar = new ProgressBar(total, 40, "Processing");
-        for (int i = 0; i <= total; i++) {
-            progressBar.update(i, "Processing", String.format("%s/%s", i, total));
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

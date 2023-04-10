@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 @Inherited
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TableColumn {
+public @interface TableColumnName {
 
     /**
      * @return 列名
