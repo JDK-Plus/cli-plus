@@ -35,7 +35,7 @@ class TablePrinterTest {
         tableRows.add(new TableRow(2, "李四", 89, "男"));
         tableRows.add(new TableRow(3, "王老五", 30, "男👵👲"));
         tableRows.add(new TableRow(4, "chang kai shen", 30, "女"));
-        tableRows.add(new TableRow(4, "p-moon ☺️☺️", 30, "纯爷们"));
+        tableRows.add(new TableRow(4, "p-moon ☺️☺️", 30, "不明"));
         tablePrinter.printTable(tableRows, TableRow.class);
     }
 }

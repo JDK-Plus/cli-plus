@@ -46,7 +46,7 @@ public class TablePrinter {
         for (List<String> row : rows) {
             for (int i = 0; i < numColumns; i++) {
                 String cell = row.get(i);
-                int cellWidth = cell.codePoints().map(c -> isChineseCharacter(c) ? 2 : 1).sum();
+                int cellWidth = getCellWidth(cell);
                 if (cellWidth > maxColumnWidths[i]) {
                     maxColumnWidths[i] = cellWidth;
                 }
@@ -75,12 +75,17 @@ public class TablePrinter {
         int cellWidth = 0;
         for (int i = 0; i < cell.length(); i++) {
             int codePoint = cell.codePointAt(i);
-            if (Character.charCount(codePoint) == 2) {
-                // 处理UTF-16编码中的代理对
-                i++;
+             if (Character.charCount(codePoint) == 2) {
+                 // 处理UTF-16编码中的代理对
+                 i++;
+             }
+            if (Character.isSupplementaryCodePoint(codePoint)) {
+                // 处理 Emoji 等特殊字符
+                cellWidth += 2;
+            } else {
+                int charWidth = isWideCharacter(codePoint) ? 2 : 1;
+                cellWidth += charWidth;
             }
-            int charWidth = isWideCharacter(codePoint) ? 2 : 1;
-            cellWidth += charWidth;
         }
         return cellWidth;
     }

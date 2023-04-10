@@ -29,6 +29,27 @@
 </dependency>
 ```
 
+## 一些有趣的组件
+
+![](./asset/cli-weight.gif)
+
+**通过代码执行查看效果**
+
+```bash
+(base) ➜  cli-plus git:(master) ✗ mvn -Dtest=plus.jdk.cli.weight.ProgressBarTest#testProgressBar test -q
+Processing [========================================>] 100% 128/128
+(base) ➜  cli-plus git:(master) ✗ mvn -Dtest=plus.jdk.cli.weight.TablePrinterTest#printTable test  -q
++----+----------------+------+--------+
+| id | 姓名           | 年龄 | 性别   |
++----+----------------+------+--------+
+| 1  | 张三💅         | 30   | 男     |
+| 2  | 李四           | 89   | 男     |
+| 3  | 王老五         | 30   | 男👵👲 |
+| 4  | chang kai shen | 30   | 女     |
+| 4  | p-moon ☺️☺️    | 30   | 未知 |
++----+----------------+------+--------+
+```
+
 ## 定义指令并指定参数
 
 **如何定义一个指令：**

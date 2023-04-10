@@ -28,6 +28,26 @@ For detailed instructions, see: https://jdk.plus/pages/2ba02f/
     <version>1.1.5</version>
 </dependency>
 ```
+## Some interesting components
+
+![](./asset/cli-weight.gif)
+
+**See the effect through code execution**
+
+```bash
+(base) ➜  cli-plus git:(master) ✗ mvn -Dtest=plus.jdk.cli.weight.ProgressBarTest#testProgressBar test -q
+Processing [========================================>] 100% 128/128
+(base) ➜  cli-plus git:(master) ✗ mvn -Dtest=plus.jdk.cli.weight.TablePrinterTest#printTable test  -q
++----+----------------+------+--------+
+| id | 姓名           | 年龄 | 性别   |
++----+----------------+------+--------+
+| 1  | 张三💅         | 30   | 男     |
+| 2  | 李四           | 89   | 男     |
+| 3  | 王老五         | 30   | 男👵👲 |
+| 4  | chang kai shen | 30   | 女     |
+| 4  | p-moon ☺️☺️    | 30   | 未知 |
++----+----------------+------+--------+
+```
 
 ## How to define a command line and declare parameters
 
